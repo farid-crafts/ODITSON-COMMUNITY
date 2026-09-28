@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown UTBK SNBT 2027</title>
+    
+    <!-- Load Google Fonts for Customization -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;600;800&family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=Montserrat:ital,wght@0,400;0,700;1,400;1,700&family=Pacifico&display=swap" rel="stylesheet">
+    
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        :root {
+            /* Default variables that can be overridden by JS */
+            --bg-color: #0f172a; /* Default dark aesthetic (slate-900) */
+            --text-color: #f8fafc; /* Default light text (slate-50) */
+            --font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-family);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism styling for settings panel so it remains readable regardless of background */
+        .settings-panel {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #f8fafc; /* Fixed color to ensure readability */
+            font-family: 'Inter', sans-serif; /* Fixed font for settings */
+        }
+
+        .settings-panel label {
+            color: #cbd5e1;
+        }
+
+        /* Countdown Number Styling */
+        .countdown-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            min-width: 100px;
+        }
+
+        .countdown-number {
+            font-weight: 800;
+            line-height: 1;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .countdown-label {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 0.5rem;
+            opacity: 0.8;
+            font-weight: 600;
+        }
+
+        /* Smooth transition for settings toggle */
+        #settings-modal {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(20px);
+        }
+        
+        #settings-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        /* Hide background for transparent mode */
+        body.transparent-mode {
+            --bg-color: transparent !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Container -->
+    <main class="w-full max-w-5xl mx-auto px-4 text-center z-10 relative flex flex-col items-center justify-center">
+        
+        <!-- Headers -->
+        <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold mb-4 tracking-tight drop-shadow-md transition-colors duration-300">
+            MENUJU UTBK SNBT 2027
+        </h1>
+        <h2 class="text-xl md:text-2xl lg:text-3xl font-medium mb-12 drop-shadow-sm opacity-90 transition-colors duration-300">
+            Semangat Guys!! #MIMPIKITABERHARGA
+        </h2>
+
+        <!-- Countdown Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 w-full max-w-4xl mx-auto">
+            <div class="countdown-box">
+                <span id="days" class="countdown-number text-6xl md:text-8xl lg:text-9xl">00</span>
+                <span class="countdown-label">Hari</span>
+            </div>
+            <div class="countdown-box">
+                <span id="hours" class="countdown-number text-6xl md:text-8xl lg:text-9xl">00</span>
+                <span class="countdown-label">Jam</span>
+            </div>
+            <div class="countdown-box">
+                <span id="minutes" class="countdown-number text-6xl md:text-8xl lg:text-9xl">00</span>
+                <span class="countdown-label">Menit</span>
+            </div>
+            <div class="countdown-box">
+                <span id="seconds" class="countdown-number text-6xl md:text-8xl lg:text-9xl">00</span>
+                <span class="countdown-label">Detik</span>
+            </div>
+        </div>
+        
+        <p id="expired-message" class="hidden text-3xl font-bold mt-12 text-yellow-400">
+            Waktu telah tiba! Semoga sukses UTBK SNBT!
+        </p>
+
+    </main>
+
+    <!-- Settings Button -->
+    <button id="settings-toggle-btn" class="fixed bottom-6 right-6 z-40 p-3 rounded-full bg-slate-800 text-slate-200 hover:bg-slate-700 shadow-lg border border-slate-700 transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-slate-400" aria-label="Open Settings">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+        </svg>
+    </button>
+
+    <!-- Settings Panel (Modal) -->
+    <div id="settings-modal" class="fixed bottom-20 right-6 z-50 w-80 p-6 rounded-2xl shadow-2xl settings-panel">
+        <div class="flex justify-between items-center mb-5">
+            <h3 class="text-xl font-bold tracking-wide">Pengaturan</h3>
+            <button id="close-settings-btn" class="text-slate-400 hover:text-white transition-colors" aria-label="Close Settings">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="space-y-5">
+            <!-- Text Color -->
+            <div>
+                <label for="color-picker" class="block text-sm font-medium mb-2">Warna Teks & Angka</label>
+                <div class="flex items-center space-x-3">
+                    <input type="color" id="color-picker" value="#f8fafc" class="h-10 w-16 p-1 rounded bg-slate-800 border border-slate-700 cursor-pointer">
+                    <span class="text-xs text-slate-400">Pilih warna pilihanmu</span>
+                </div>
+            </div>
+
+            <!-- Font Selector -->
+            <div>
+                <label for="font-selector" class="block text-sm font-medium mb-2">Gaya Huruf (Font)</label>
+                <select id="font-selector" class="w-full bg-slate-800 border border-slate-700 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 outline-none cursor-pointer">
+                    <option value="'Inter', sans-serif">Inter (Modern Sans)</option>
+                    <option value="'Montserrat', sans-serif">Montserrat (Bold & Clean)</option>
+                    <option value="'Lora', serif">Lora (Elegant Serif)</option>
+                    <option value="'Courier Prime', monospace">Courier Prime (Monospace)</option>
+                    <option value="'Pacifico', cursive">Pacifico (Handwriting/Cursive)</option>
+                </select>
+            </div>
+
+            <!-- Transparent Background Toggle -->
+            <div class="pt-2 border-t border-slate-700/50 mt-4">
+                <label class="flex items-center cursor-pointer justify-between">
+                    <div class="flex flex-col">
+                        <span class="text-sm font-medium text-white">Background Transparan</span>
+                        <span class="text-xs text-slate-400">Cocok untuk widget Github</span>
+                    </div>
+                    <div class="relative">
+                        <input type="checkbox" id="transparent-toggle" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                    </div>
+                </label>
+            </div>
+            
+            <p class="text-[10px] text-slate-500 text-center mt-4">Setelan disimpan secara lokal (di browser ini).</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Target Date: April 21, 2027 00:00:00 (WIB / Local time)
+            const targetDate = new Date("April 21, 2027 00:00:00").getTime();
+            
+            // DOM Elements - Countdown
+            const daysEl = document.getElementById('days');
+            const hoursEl = document.getElementById('hours');
+            const minutesEl = document.getElementById('minutes');
+            const secondsEl = document.getElementById('seconds');
+            const expiredMessage = document.getElementById('expired-message');
+            
+            // DOM Elements - Settings
+            const settingsBtn = document.getElementById('settings-toggle-btn');
+            const closeSettingsBtn = document.getElementById('close-settings-btn');
+            const settingsModal = document.getElementById('settings-modal');
+            const colorPicker = document.getElementById('color-picker');
+            const fontSelector = document.getElementById('font-selector');
+            const transparentToggle = document.getElementById('transparent-toggle');
+
+            // --- COUNTDOWN LOGIC ---
+            function updateCountdown() {
+                const now = new Date().getTime();
+                const distance = targetDate - now;
+
+                if (distance < 0) {
+                    clearInterval(countdownInterval);
+                    daysEl.innerText = "00";
+                    hoursEl.innerText = "00";
+                    minutesEl.innerText = "00";
+                    secondsEl.innerText = "00";
+                    expiredMessage.classList.remove('hidden');
+                    return;
+                }
+
+                // Time calculations
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                // Format with leading zero if needed
+                daysEl.innerText = days < 10 ? '0' + days : days;
+                hoursEl.innerText = hours < 10 ? '0' + hours : hours;
+                minutesEl.innerText = minutes < 10 ? '0' + minutes : minutes;
+                secondsEl.innerText = seconds < 10 ? '0' + seconds : seconds;
+            }
+
+            // Initial call & Interval setup
+            updateCountdown();
+            const countdownInterval = setInterval(updateCountdown, 1000);
+
+            // --- SETTINGS UI TOGGLE LOGIC ---
+            function toggleSettings() {
+                settingsModal.classList.toggle('active');
+            }
+
+            settingsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleSettings();
+            });
+
+            closeSettingsBtn.addEventListener('click', toggleSettings);
+
+            // Close modal when clicking outside
+            document.addEventListener('click', (e) => {
+                if (settingsModal.classList.contains('active') && 
+                    !settingsModal.contains(e.target) && 
+                    e.target !== settingsBtn) {
+                    settingsModal.classList.remove('active');
+                }
+            });
+            
+            settingsModal.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent clicks inside modal from closing it
+            });
+
+            // --- CUSTOMIZATION LOGIC ---
+            const root = document.documentElement;
+            const body = document.body;
+
+            // Load saved settings from localStorage (if any)
+            function loadSettings() {
+                const savedColor = localStorage.getItem('utbk27_textColor');
+                const savedFont = localStorage.getItem('utbk27_fontFamily');
+                const savedTransparent = localStorage.getItem('utbk27_isTransparent');
+
+                if (savedColor) {
+                    root.style.setProperty('--text-color', savedColor);
+                    colorPicker.value = savedColor;
+                }
+                if (savedFont) {
+                    root.style.setProperty('--font-family', savedFont);
+                    fontSelector.value = savedFont;
+                }
+                if (savedTransparent === 'true') {
+                    body.classList.add('transparent-mode');
+                    transparentToggle.checked = true;
+                }
+            }
+
+            loadSettings();
+
+            // Handle Color Change
+            colorPicker.addEventListener('input', (e) => {
+                const newColor = e.target.value;
+                root.style.setProperty('--text-color', newColor);
+                localStorage.setItem('utbk27_textColor', newColor);
+            });
+
+            // Handle Font Change
+            fontSelector.addEventListener('change', (e) => {
+                const newFont = e.target.value;
+                root.style.setProperty('--font-family', newFont);
+                localStorage.setItem('utbk27_fontFamily', newFont);
+            });
+
+            // Handle Transparent Background Toggle
+            transparentToggle.addEventListener('change', (e) => {
+                const isTransparent = e.target.checked;
+                if (isTransparent) {
+                    body.classList.add('transparent-mode');
+                } else {
+                    body.classList.remove('transparent-mode');
+                }
+                localStorage.setItem('utbk27_isTransparent', isTransparent);
+            });
+        });
+    </script>
+</body>
+</html>
