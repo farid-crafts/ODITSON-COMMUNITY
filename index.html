@@ -8,7 +8,7 @@
     <!-- Load Google Fonts for Customization -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;600;800&family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=Montserrat:ital,wght@0,400;0,700;1,400;1,700&family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;600;800&family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=Montserrat:ital,wght@0,400;0,700;1,400;1,700&family=Pacifico&family=Orbitron:wght@400;700;900&family=VT323&family=Share+Tech+Mono&family=Bebas+Neue&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -100,10 +100,10 @@
     <main class="w-full max-w-5xl mx-auto px-4 text-center z-10 relative flex flex-col items-center justify-center">
         
         <!-- Headers -->
-        <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold mb-4 tracking-tight drop-shadow-md transition-colors duration-300">
+        <h1 id="main-title" class="text-4xl md:text-6xl lg:text-7xl font-extrabold mb-4 tracking-tight drop-shadow-md transition-colors duration-300">
             MENUJU UTBK SNBT 2027
         </h1>
-        <h2 class="text-xl md:text-2xl lg:text-3xl font-medium mb-12 drop-shadow-sm opacity-90 transition-colors duration-300">
+        <h2 id="sub-title" class="text-xl md:text-2xl lg:text-3xl font-medium mb-12 drop-shadow-sm opacity-90 transition-colors duration-300">
             Semangat Guys!! #MIMPIKITABERHARGA
         </h2>
 
@@ -152,7 +152,19 @@
             </button>
         </div>
 
-        <div class="space-y-5">
+        <div class="space-y-4 max-h-[65vh] overflow-y-auto pr-2">
+            <!-- Teks Judul -->
+            <div>
+                <label for="title-input" class="block text-sm font-medium mb-1">Judul Utama</label>
+                <input type="text" id="title-input" class="w-full bg-slate-800 border border-slate-700 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 outline-none transition-colors" value="MENUJU UTBK SNBT 2027">
+            </div>
+            
+            <!-- Teks Sub-Judul -->
+            <div>
+                <label for="subtitle-input" class="block text-sm font-medium mb-1">Sub Judul</label>
+                <input type="text" id="subtitle-input" class="w-full bg-slate-800 border border-slate-700 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 outline-none transition-colors" value="Semangat Guys!! #MIMPIKITABERHARGA">
+            </div>
+
             <!-- Text Color -->
             <div>
                 <label for="color-picker" class="block text-sm font-medium mb-2">Warna Teks & Angka</label>
@@ -167,6 +179,11 @@
                 <label for="font-selector" class="block text-sm font-medium mb-2">Gaya Huruf (Font)</label>
                 <select id="font-selector" class="w-full bg-slate-800 border border-slate-700 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 outline-none cursor-pointer">
                     <option value="'Inter', sans-serif">Inter (Modern Sans)</option>
+                    <option value="'Orbitron', sans-serif">Orbitron (Digital Sci-Fi)</option>
+                    <option value="'VT323', monospace">VT323 (Retro Digital)</option>
+                    <option value="'Share Tech Mono', monospace">Share Tech Mono (Clean Digital)</option>
+                    <option value="'Bebas Neue', sans-serif">Bebas Neue (Bold Display)</option>
+                    <option value="'Quicksand', sans-serif">Quicksand (Rounded Modern)</option>
                     <option value="'Montserrat', sans-serif">Montserrat (Bold & Clean)</option>
                     <option value="'Lora', serif">Lora (Elegant Serif)</option>
                     <option value="'Courier Prime', monospace">Courier Prime (Monospace)</option>
@@ -204,10 +221,15 @@
             const secondsEl = document.getElementById('seconds');
             const expiredMessage = document.getElementById('expired-message');
             
+            const mainTitle = document.getElementById('main-title');
+            const subTitle = document.getElementById('sub-title');
+            
             // DOM Elements - Settings
             const settingsBtn = document.getElementById('settings-toggle-btn');
             const closeSettingsBtn = document.getElementById('close-settings-btn');
             const settingsModal = document.getElementById('settings-modal');
+            const titleInput = document.getElementById('title-input');
+            const subtitleInput = document.getElementById('subtitle-input');
             const colorPicker = document.getElementById('color-picker');
             const fontSelector = document.getElementById('font-selector');
             const transparentToggle = document.getElementById('transparent-toggle');
@@ -275,10 +297,20 @@
 
             // Load saved settings from localStorage (if any)
             function loadSettings() {
+                const savedTitle = localStorage.getItem('utbk27_title');
+                const savedSubtitle = localStorage.getItem('utbk27_subtitle');
                 const savedColor = localStorage.getItem('utbk27_textColor');
                 const savedFont = localStorage.getItem('utbk27_fontFamily');
                 const savedTransparent = localStorage.getItem('utbk27_isTransparent');
 
+                if (savedTitle !== null) {
+                    mainTitle.innerText = savedTitle;
+                    titleInput.value = savedTitle;
+                }
+                if (savedSubtitle !== null) {
+                    subTitle.innerText = savedSubtitle;
+                    subtitleInput.value = savedSubtitle;
+                }
                 if (savedColor) {
                     root.style.setProperty('--text-color', savedColor);
                     colorPicker.value = savedColor;
@@ -294,6 +326,20 @@
             }
 
             loadSettings();
+
+            // Handle Title Change
+            titleInput.addEventListener('input', (e) => {
+                const newTitle = e.target.value;
+                mainTitle.innerText = newTitle;
+                localStorage.setItem('utbk27_title', newTitle);
+            });
+
+            // Handle Subtitle Change
+            subtitleInput.addEventListener('input', (e) => {
+                const newSubtitle = e.target.value;
+                subTitle.innerText = newSubtitle;
+                localStorage.setItem('utbk27_subtitle', newSubtitle);
+            });
 
             // Handle Color Change
             colorPicker.addEventListener('input', (e) => {
